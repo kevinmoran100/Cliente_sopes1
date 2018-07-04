@@ -71,7 +71,7 @@
                                     <i class="fas fa-chart-bar"></i>Mensajes</a>
                             </li>
                             <li>
-                                <a href="cuenta.jsp">
+                                <a href="cuenta">
                                     <i class="fas fa-table"></i>Cuenta</a>
                             </li>
                         </ul>
@@ -96,7 +96,7 @@
                                     <i class="fas fa-chart-bar"></i>Mensajes</a>
                             </li>
                             <li>
-                                <a href="cuenta.jsp">
+                                <a href="cuenta">
                                     <i class="fas fa-table"></i>Cuenta</a>
                             </li>
 
@@ -133,7 +133,7 @@
                                                 </div>
                                                 <div class="account-dropdown__body">
                                                     <div class="account-dropdown__item">
-                                                        <a href="cuenta.jsp">
+                                                        <a href="cuenta">
                                                             <i class="zmdi zmdi-account"></i>Cuenta</a>
                                                     </div>
                                                 </div>

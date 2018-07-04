@@ -6,24 +6,23 @@
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  *
  * @author kevin
  */
-@WebServlet(urlPatterns = {"/ServletLogin"})
-public class ServletLogin extends HttpServlet {
+@WebServlet(urlPatterns = {"/cuenta"})
+public class ServletCuenta extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,43 +34,43 @@ public class ServletLogin extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, TimeoutException {
+            throws ServletException, IOException, TimeoutException, InterruptedException {
         response.setContentType("text/html;charset=UTF-8");
-        String user = request.getParameter("user");
-        String pass = request.getParameter("pass");
-        pass=Sha256.Encriptar(pass);
-        if (user != null && !(user.equals("")) && pass != null && !(pass.equals(""))) {
-            try (PrintWriter out = response.getWriter()) {
-                RPCClient_Cassandra rpc = null;
-                String resp = null;
-                try {
-                    rpc = new RPCClient_Cassandra();
-                    System.out.println(" [x] Requesting login user: "+user+" pass: "+pass);
-                    resp = rpc.call("login#%" + user + "," + pass);
-                    out.println(resp);
-                    if (resp.equals("1")) {
-                        HttpSession session = request.getSession();
-                        session.setAttribute("user", user);
-                        response.sendRedirect("/");
-                    }
-                    else{
-                        HttpSession session = request.getSession();
-                        session.setAttribute("error","Credenciales incorrectas");
-                        response.sendRedirect("/login.jsp");
-                    }
-                    System.out.println(" [.] Got '" + resp + "'");
-                } catch (IOException | TimeoutException | InterruptedException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (rpc != null) {
-                        try {
-                            rpc.close();
-                        } catch (IOException _ignore) {
-                        }
+        try (PrintWriter out = response.getWriter()) {
+            RPCClient_Cassandra rpc = null;
+            String resp = null;
+            try {
+                rpc = new RPCClient_Cassandra();
+                System.out.println(" [x] Requesting mensajes");
+                HttpSession session = request.getSession();
+                Object user = session.getAttribute("user");
+                String req = "getdatos#%" + user;
+                System.out.println(req);
+                resp = rpc.call(req);
+                String[] ax = resp.split(",");
+                if (ax.length == 3) {
+                    request.setAttribute("nombre", ax[0]);
+                    request.setAttribute("apellido", ax[1]);
+                    try {
+                        request.setAttribute("pass", Sha256.Desencriptar(ax[2]));
+                    } catch (Exception ex) {
+                        Logger.getLogger(ServletCuenta.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-
+                RequestDispatcher rd = request.getRequestDispatcher("cuenta.jsp");
+                rd.forward(request, response);
+                System.out.println(" [.] Got '" + resp + "'");
+            } catch (IOException | TimeoutException e) {
+                e.printStackTrace();
+            } finally {
+                if (rpc != null) {
+                    try {
+                        rpc.close();
+                    } catch (IOException _ignore) {
+                    }
+                }
             }
+
         }
     }
 
@@ -90,7 +89,9 @@ public class ServletLogin extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (TimeoutException ex) {
-            Logger.getLogger(ServletRedis.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ServletCuenta.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServletCuenta.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -108,7 +109,9 @@ public class ServletLogin extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (TimeoutException ex) {
-            Logger.getLogger(ServletRedis.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ServletCuenta.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServletCuenta.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

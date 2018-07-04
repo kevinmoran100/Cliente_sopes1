@@ -70,7 +70,7 @@
                                     <i class="fas fa-chart-bar"></i>Mensajes</a>
                             </li>
                             <li>
-                                <a href="cuenta.jsp">
+                                <a href="cuenta">
                                     <i class="fas fa-table"></i>Cuenta</a>
                             </li>
                         </ul>
@@ -95,7 +95,7 @@
                                     <i class="fas fa-chart-bar"></i>Mensajes</a>
                             </li>
                             <li>
-                                <a href="cuenta.jsp">
+                                <a href="cuenta">
                                     <i class="fas fa-table"></i>Cuenta</a>
                             </li>
 
@@ -133,7 +133,7 @@
                                                 </div>
                                                 <div class="account-dropdown__body">
                                                     <div class="account-dropdown__item">
-                                                        <a href="cuenta.jsp">
+                                                        <a href="cuenta">
                                                             <i class="zmdi zmdi-account"></i>Cuenta</a>
                                                     </div>
                                                 </div>
@@ -162,7 +162,7 @@
                                             <strong>Editar cuenta</strong> ${sessionScope.user}
                                         </div>
                                         <div class="card-body card-block">
-                                            <form action="" method="post" class="form-horizontal">
+                                            <form action="ServletUpdate" method="post" class="form-horizontal">
                                                 <div class="row form-group">
                                                     <div class="col col-md-3">
                                                         <label for="nombre" class=" form-control-label">Nombre</label>
@@ -183,10 +183,19 @@
                                                 </div>
                                                 <div class="row form-group">
                                                     <div class="col col-md-3">
-                                                        <label for="pass" class=" form-control-label">Contraseña</label>
+                                                        <label for="pass1" class=" form-control-label">Contraseña</label>
                                                     </div>
                                                     <div class="col-12 col-md-9">
-                                                        <input id="pass" name="pass" placeholder="Contraseña" value="${pass}" class="form-control">
+                                                        <input id="pass1" name="pass1" placeholder="Contraseña" value="${pass}" class="form-control">
+                                                        <span class="help-block">Ingrese la nueva Contraseña</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row form-group">
+                                                    <div class="col col-md-3">
+                                                        <label for="pass2" class=" form-control-label">Confirmar contraseña</label>
+                                                    </div>
+                                                    <div class="col-12 col-md-9">
+                                                        <input id="pass2" name="pass2" placeholder="Confirmar contraseña" value="${pass}" class="form-control">
                                                         <span class="help-block">Ingrese la nueva Contraseña</span>
                                                     </div>
                                                 </div>

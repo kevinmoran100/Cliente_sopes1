@@ -7,23 +7,22 @@
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Calendar;
-import javax.servlet.RequestDispatcher;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author kevin
  */
-@WebServlet(urlPatterns = {"/ServletRegistrar"})
-public class ServletRegistrar extends HttpServlet {
+@WebServlet(urlPatterns = {"/ServletUpdate"})
+public class ServletUpdate extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -37,7 +36,8 @@ public class ServletRegistrar extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, TimeoutException, InterruptedException {
         response.setContentType("text/html;charset=UTF-8");
-        String user = request.getParameter("user");
+        HttpSession session = request.getSession();
+        String user = (String)session.getAttribute("user");
         String pass1 = request.getParameter("pass1");
         String pass2 = request.getParameter("pass2");
         String nombre = request.getParameter("nombre");
@@ -49,19 +49,18 @@ public class ServletRegistrar extends HttpServlet {
                         RPCClient_Cassandra rpc = null;
                         String resp = null;
                         try {
-                            pass1=Sha256.Encriptar(pass1);
                             rpc = new RPCClient_Cassandra();
+                            pass1=Sha256.Encriptar(pass1);
                             System.out.println(" [x] Requesting registro user: " + user + " pass: " + pass1);
-                            String req="nuevo#%" + user + "," + pass1 + "," + nombre + "," + apellido + ","+getFecha();
+                            String req = "update#%" + user + "," + pass1 + "," + nombre + "," + apellido + "," + getFecha();
                             System.out.println(req);
                             resp = rpc.call(req);
                             out.println(resp);
-                            if (resp.equals("3")) {
-                                response.sendRedirect("/login.jsp");
+                            if (resp.equals("5")) {
+                                response.sendRedirect("/cuenta");
                             } else {
-                                HttpSession session = request.getSession();
                                 session.setAttribute("error", "Error al guardar el usuario");
-                                response.sendRedirect("/register.jsp");
+                                response.sendRedirect("/cuenta");
                             }
                             System.out.println(" [.] Got '" + resp + "'");
                         } catch (IOException | TimeoutException e) {
@@ -77,68 +76,15 @@ public class ServletRegistrar extends HttpServlet {
 
                     }
                 } else {
-                    HttpSession session = request.getSession();
                     session.setAttribute("error", "La contraseña no es segura, debe tener por lo menos 8 caracteres, una letra mayuscula, una minuscula, un numero y un simbolo");
-                    response.sendRedirect("/register.jsp");
+                    response.sendRedirect("/cuenta");
                 }
             } else {
-                HttpSession session = request.getSession();
                 session.setAttribute("error", "La contraseña no concide");
-                response.sendRedirect("/register.jsp");
+                response.sendRedirect("/cuenta");
             }
         }
     }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (TimeoutException ex) {
-            Logger.getLogger(ServletRedis.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(ServletRegistrar.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (TimeoutException ex) {
-            Logger.getLogger(ServletRedis.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(ServletRegistrar.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 
     private boolean esPasswordValida(String password) {
         char clave;
@@ -161,10 +107,62 @@ public class ServletRegistrar extends HttpServlet {
 
     private String getFecha() {
         Calendar c = Calendar.getInstance();
-        return c.get(Calendar.DAY_OF_MONTH)+"/"+c.get(Calendar.MONTH+1)+"/"+c.get(Calendar.YEAR)+" "+c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE)+":"+c.get(Calendar.SECOND);
+        return c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH + 1) + "/" + c.get(Calendar.YEAR) + " " + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND);
     }
-    
-    private boolean StringValido(String s){
+
+    private boolean StringValido(String s) {
         return s != null && !(s.equals(""));
     }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (TimeoutException ex) {
+            Logger.getLogger(ServletUpdate.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServletUpdate.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (TimeoutException ex) {
+            Logger.getLogger(ServletUpdate.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServletUpdate.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
 }

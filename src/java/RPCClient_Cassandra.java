@@ -25,7 +25,7 @@ public class RPCClient_Cassandra {
 
     private Connection connection;
     private Channel channel;
-    private String requestQueueName = "cassandra";
+    private String requestQueueName = "colaCassandra";
     private String replyQueueName;
 
     public RPCClient_Cassandra() throws IOException, TimeoutException {

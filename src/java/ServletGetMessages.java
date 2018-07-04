@@ -38,7 +38,6 @@ public class ServletGetMessages extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, TimeoutException, InterruptedException {
         response.setContentType("text/html;charset=UTF-8");
-        String msg = request.getParameter("mensaje");
         try (PrintWriter out = response.getWriter()) {
             RPCClient_Redis rpc = null;
             String resp = null;
